@@ -1,0 +1,63 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
+    defaultConfig {
+        applicationId "kiddo.epsilon.custodet"
+        minSdkVersion 19
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    // Added for google cloud translate (Don't know what they do)[
+    configurations.all {
+        resolutionStrategy.force 'com.google.code.findbugs:jsr305:1.3.9'
+    }
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/io.netty.versions.properties'
+        exclude 'META-INF/INDEX.LIST'
+    }
+    //]
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles.add(file('../../proguard-gvr.txt')) // GVR proguard file
+        }
+    }
+
+    //APACHE HTTP FOR MICROSOFT IMAGE RECOGNITION
+    //useLibrary 'org.apache.http.legacy'
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support:appcompat-v7:25.1.0'
+
+    //MICROSOFT IMAGE RECOGNITION
+    // Use the following line to include client library from Maven Central Repository
+    // Change the version number from the search.maven.org result
+    compile 'com.microsoft.projectoxford:vision:1.0.393'
+
+    //GOOGLE TRANSLATE
+    compile ('com.google.apis:google-api-services-translate:v2-rev47-1.22.0') {
+        exclude group: 'com.google.guava'
+    }
+    compile ('com.google.cloud:google-cloud-translate:0.5.0') {
+        exclude group: 'io.grpc', module: 'grpc-all'
+        exclude group: 'com.google.protobuf', module: 'protobuf-java'
+        exclude group: 'com.google.api-client', module: 'google-api-client-appengine'
+    }
+
+    //GOOGLE VR
+    //compile 'com.google.vr:sdk-base:1.40.0' //main
+
+    testCompile 'junit:junit:4.12'
+}
