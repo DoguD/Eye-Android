@@ -5,7 +5,7 @@ android {
     buildToolsVersion "25.0.2"
     defaultConfig {
         applicationId "kiddo.epsilon.custodet"
-        minSdkVersion 19
+        minSdkVersion 19 // Normally it was 19 ; made it 21 for Camera2 API
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"

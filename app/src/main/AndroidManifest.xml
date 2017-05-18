@@ -5,6 +5,7 @@
     <!--Only downloadable to devices with camera-->
     <uses-feature android:name="android.hardware.camera"
         android:required="true" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
 
     <!--PERMISSIONS-->
     <!--Store Photo(Android 4.3 and lower)-->
