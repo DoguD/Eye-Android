@@ -18,7 +18,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -62,7 +61,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     private ImageSurfaceView mImageSurfaceView;
     private Camera camera;
 
-    private FrameLayout cameraPreviewLayout;
     private ImageView capturedImageHolder;
 
     @Override
@@ -94,36 +92,38 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         //imageTakenPhoto2 = (ImageView) findViewById(R.id.imageTakenPhoto2);
 
         //!!! Only devices with a camera can download our app
+        // Check for camera permission for Android 6.0 and above
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
             //ask for authorization
             Speak("Lütfen kamera için izin veriniz");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 50);
         }
         else{ //Get camera instance
-        camera = checkDeviceCamera();
+            camera = checkDeviceCamera();
         }
 
         //Set the image of image view to temp photo
         photoBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.fountain_pen); // Temporary bitmap
 
         //Taking Picture
-        cameraPreviewLayout = (FrameLayout)findViewById(R.id.camera_preview);
         capturedImageHolder = (ImageView)findViewById(R.id.captured_image);
 
-        camera = checkDeviceCamera();
         mImageSurfaceView = new ImageSurfaceView(MainActivity.this, camera);
-        cameraPreviewLayout.addView(mImageSurfaceView);
 
         Button captureButton = (Button)findViewById(R.id.button);
         captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                camera.takePicture(null, null, pictureCallback);
+                takePicture();
             }
         });
     }
 
     //TAKING PHOTO from https://inducesmile.com/android/android-camera-api-tutorial/
+
+    void takePicture(){
+        camera.takePicture(null, null, pictureCallback);
+    }
 
     private Camera checkDeviceCamera(){
         Camera mCamera = null;
@@ -138,12 +138,12 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     PictureCallback pictureCallback = new PictureCallback() {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
-            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-            if(bitmap==null){
+            photoBitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+            if(photoBitmap==null){
                 Toast.makeText(MainActivity.this, "Captured image is empty", Toast.LENGTH_LONG).show();
                 return;
             }
-            capturedImageHolder.setImageBitmap(scaleDownBitmapImage(bitmap, 300, 200 ));
+            capturedImageHolder.setImageBitmap(scaleDownBitmapImage(photoBitmap, 300, 200 ));
         }
     };
 
