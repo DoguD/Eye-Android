@@ -16,8 +16,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.View;
-import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -61,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     private ImageSurfaceView mImageSurfaceView;
     private Camera camera;
 
+    private FrameLayout cameraPreviewLayout;
     private ImageView capturedImageHolder;
 
     @Override
@@ -105,18 +105,12 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         //Set the image of image view to temp photo
         photoBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.fountain_pen); // Temporary bitmap
 
-        //Taking Picture
+        //Camera Preview
+        cameraPreviewLayout = (FrameLayout)findViewById(R.id.camera_preview);
         capturedImageHolder = (ImageView)findViewById(R.id.captured_image);
-
         mImageSurfaceView = new ImageSurfaceView(MainActivity.this, camera);
+        cameraPreviewLayout.addView(mImageSurfaceView);
 
-        Button captureButton = (Button)findViewById(R.id.button);
-        captureButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                takePicture();
-            }
-        });
     }
 
     //TAKING PHOTO from https://inducesmile.com/android/android-camera-api-tutorial/
@@ -144,6 +138,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 return;
             }
             capturedImageHolder.setImageBitmap(scaleDownBitmapImage(photoBitmap, 300, 200 ));
+            ProcessImage();
         }
     };
 
@@ -223,7 +218,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 //Pass result to speech variable
                 textToSpeechInputText = tempStringBuilder.toString();
                 Log.d("Output", textToSpeechInputText);
-                state = 0; //stop the continious analyzing speech
 
                 //Translate to Turkish
                 TranslateToTurkish();
@@ -283,7 +277,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     //MAIN
     public void MainMethod() {
         if(state == 0) {
-            //CaptureImage(); // Start with taking photo
+            takePicture(); // Start with taking photo
             Log.e("Camera:", "CaptureImage method executed");
 
             Speak("Fotoğraf çekiliyor...");
