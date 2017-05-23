@@ -16,7 +16,11 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
+import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.cloud.translate.Translate;
 import com.google.cloud.translate.TranslateOptions;
@@ -53,8 +57,13 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     String textToSpeechInputText;
     TextToSpeech tts;
     Locale turkishLocale = new Locale("tr", "TR"); // Turkish for text-to-speech
-    //Camera
-    Camera camera;
+
+    // CAMERA FROM https://inducesmile.com/android/android-camera-api-tutorial/
+    private ImageSurfaceView mImageSurfaceView;
+    private Camera camera;
+
+    private FrameLayout cameraPreviewLayout;
+    private ImageView capturedImageHolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,75 +90,66 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         textToSpeechInputText = "Merhaba, göze hoşgeldiniz. İstediğiniz yere bakın ve kulaklığınızın butonuna basın. Biz sizin için görelim."; // Welcome message
 
         //Taking photo (initialization of image view)
-        imageTakenPhoto = (ImageView) findViewById(R.id.imageTakenPhoto);
-        imageTakenPhoto2 = (ImageView) findViewById(R.id.imageTakenPhoto2);
+        //imageTakenPhoto = (ImageView) findViewById(R.id.imageTakenPhoto);
+        //imageTakenPhoto2 = (ImageView) findViewById(R.id.imageTakenPhoto2);
 
         //!!! Only devices with a camera can download our app
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
-            //ask for authorisation
+            //ask for authorization
             Speak("Lütfen kamera için izin veriniz");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 50);
         }
-        else{
-        camera=getCameraInstance();
+        else{ //Get camera instance
+        camera = checkDeviceCamera();
         }
 
         //Set the image of image view to temp photo
         photoBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.fountain_pen); // Temporary bitmap
-        imageTakenPhoto.setImageBitmap(photoBitmap);
-        imageTakenPhoto2.setImageBitmap(photoBitmap);
+
+        //Taking Picture
+        cameraPreviewLayout = (FrameLayout)findViewById(R.id.camera_preview);
+        capturedImageHolder = (ImageView)findViewById(R.id.captured_image);
+
+        camera = checkDeviceCamera();
+        mImageSurfaceView = new ImageSurfaceView(MainActivity.this, camera);
+        cameraPreviewLayout.addView(mImageSurfaceView);
+
+        Button captureButton = (Button)findViewById(R.id.button);
+        captureButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                camera.takePicture(null, null, pictureCallback);
+            }
+        });
     }
 
-    //TAKING PHOTO
-    //Copied from https://developer.android.com/guide/topics/media/camera.html#custom-camera
+    //TAKING PHOTO from https://inducesmile.com/android/android-camera-api-tutorial/
 
-    //Accessing camera
-    public static Camera getCameraInstance() {
-        Camera c = null;
+    private Camera checkDeviceCamera(){
+        Camera mCamera = null;
         try {
-
-            c = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK); // attempt to get a Camera instance
-            Log.e("Camera: ","Camera opened succesfully");
+            mCamera = Camera.open();
         } catch (Exception e) {
-            Log.e("Camera Error:","Can't open camera");
-            // Camera is not available (in use or does not exist)
+            e.printStackTrace();
         }
-        return c; // returns null if camera is unavailable
+        return mCamera;
     }
 
-    //Retrieving image from camera
-    private PictureCallback pictureCallback = new PictureCallback() {
+    PictureCallback pictureCallback = new PictureCallback() {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
-            Log.e("Camera: ", "inside pictureCallBack onPictureTaken");
-            try {
-                // Replace bitmap variable with the new taken photo (transfer byte array to bitmap)
-                photoBitmap = BitmapFactory.decodeByteArray(data,0,data.length);
-                //Blinds can't see but for debug purposes replace image views with new photo
-                imageTakenPhoto.setImageBitmap(photoBitmap);
-                imageTakenPhoto2.setImageBitmap(photoBitmap);
-
-                //Continue with Image Processing
-                ProcessImage();
-                Speak("Algılanıyor...");
-            } catch (Exception e){
-                Speak("Hata var.");
+            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+            if(bitmap==null){
+                Toast.makeText(MainActivity.this, "Captured image is empty", Toast.LENGTH_LONG).show();
+                return;
             }
+            capturedImageHolder.setImageBitmap(scaleDownBitmapImage(bitmap, 300, 200 ));
         }
     };
 
-    //Take picture method
-    void CaptureImage() {
-        //Re-accsess camera if it has been released somehow
-        if (camera == null) {
-            camera = getCameraInstance();
-            Log.e("Camera: ","Camera initialized in Capture Image method");
-        }
-
-        camera.unlock();
-        camera.enableShutterSound(true); // SOund for shutter
-        camera.takePicture(null, null, pictureCallback); // Capture image from camera
-        Log.e("Camera:", "Take picture method executed");
+    private Bitmap scaleDownBitmapImage(Bitmap bitmap, int newWidth, int newHeight){
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
+        return resizedBitmap;
     }
 
     // RECOGNIZE FUNCTION OF MICROSOFT API
@@ -283,7 +283,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     //MAIN
     public void MainMethod() {
         if(state == 0) {
-            CaptureImage(); // Start with taking photo
+            //CaptureImage(); // Start with taking photo
             Log.e("Camera:", "CaptureImage method executed");
 
             Speak("Fotoğraf çekiliyor...");
@@ -483,3 +483,55 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
         }
     };*/
+//TAKING PHOTO
+//Copied from https://developer.android.com/guide/topics/media/camera.html#custom-camera
+    /*
+    //Accessing camera
+    public static Camera getCameraInstance() {
+        Camera c = null;
+        try {
+
+            c = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK); // attempt to get a Camera instance
+            Log.e("Camera: ","Camera opened succesfully");
+        } catch (Exception e) {
+            Log.e("Camera Error:","Can't open camera");
+            // Camera is not available (in use or does not exist)
+        }
+        return c; // returns null if camera is unavailable
+    }
+
+    //Retrieving image from camera
+    private PictureCallback pictureCallback = new PictureCallback() {
+        @Override
+        public void onPictureTaken(byte[] data, Camera camera) {
+            Log.e("Camera: ", "inside pictureCallBack onPictureTaken");
+            try {
+                // Replace bitmap variable with the new taken photo (transfer byte array to bitmap)
+                photoBitmap = BitmapFactory.decodeByteArray(data,0,data.length);
+                //Blinds can't see but for debug purposes replace image views with new photo
+                imageTakenPhoto.setImageBitmap(photoBitmap);
+                imageTakenPhoto2.setImageBitmap(photoBitmap);
+
+                //Continue with Image Processing
+                ProcessImage();
+                Speak("Algılanıyor...");
+            } catch (Exception e){
+                Speak("Hata var.");
+            }
+        }
+    };
+
+    //Take picture method
+    void CaptureImage() {
+        //Re-accsess camera if it has been released somehow
+        if (camera == null) {
+            camera = getCameraInstance();
+            Log.e("Camera: ","Camera initialized in Capture Image method");
+        }
+
+        camera.unlock();
+        camera.enableShutterSound(true); // SOund for shutter
+        camera.takePicture(null, null, pictureCallback); // Capture image from camera
+        Log.e("Camera:", "Take picture method executed");
+    }
+    */
