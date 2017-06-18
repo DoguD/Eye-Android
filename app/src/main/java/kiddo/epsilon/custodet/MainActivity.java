@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     private Camera camera;
 
     private FrameLayout cameraPreviewLayoutLeft;
-    private FrameLayout cameraPreviewLayoutRight;
+    //private FrameLayout cameraPreviewLayoutRight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,12 +107,12 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         //CAMERA VIEW (Not for blind)
         //Initialize frame layout
         cameraPreviewLayoutLeft = (FrameLayout)findViewById(R.id.camera_preview_left);
-        cameraPreviewLayoutRight = (FrameLayout) findViewById(R.id.camera_preview_right);
+        //cameraPreviewLayoutRight = (FrameLayout) findViewById(R.id.camera_preview_right);
         //Initialize surface view
         mImageSurfaceView = new ImageSurfaceView(MainActivity.this, camera);
         //Show surface view from frame layout
         cameraPreviewLayoutLeft.addView(mImageSurfaceView);
-        cameraPreviewLayoutRight.addView(mImageSurfaceView);
+        //cameraPreviewLayoutRight.addView(mImageSurfaceView);
 
     }
 
