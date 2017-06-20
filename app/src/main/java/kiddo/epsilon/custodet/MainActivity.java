@@ -2,6 +2,7 @@ package kiddo.epsilon.custodet;
 
 
 import android.Manifest;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,7 +16,11 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Display;
 import android.view.KeyEvent;
+import android.view.Surface;
+import android.view.SurfaceHolder;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -70,6 +75,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         if (instance == null) {
             instance = this;
         }
+
+        //Force landscape mode
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
         //Initialize state variable (no process right now)
         state = 0;
@@ -137,10 +145,11 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         public void onPictureTaken(byte[] data, Camera camera) {
             photoBitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
             if(photoBitmap==null){ // If a problem occurs with taking photo
-                Speak("Fotoğraf çekilemedi...");
+                Speak("Fotoğraf çekilemedi... Lütfen uygulamayı yeniden başlatın.");
                 state=0;
                 return;
             }
+            Speak("Fotoğraf algılanıyor.");
             ProcessImage();
         }
     };
@@ -161,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         try {
             new DoRequest().execute();
         } catch (Exception e) {
-            Speak("Hata var.");
+            Speak("Fotoğraf algılanamadı, internet bağlantınızı kontrol edin.");
             state=0;
         }
     }
@@ -194,8 +203,8 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             try {
                 return Process();
             } catch (Exception e) {
-                this.e = e;    // Store error
-                Speak("Hata var.");
+                this.e = e; // Store error
+                Speak("Fotoğraf algılanamadı, internet bağlantınızı kontrol edin.");
                 state=0;
             }
 
@@ -212,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             tempStringBuilder = new StringBuilder();
 
             if (e != null) {
-                Speak("Hata var.");
+                Speak("Fotoğraf algılanamadı, internet bağlantınızı kontrol edin.");
                 this.e = null;
                 state=0;
             } else {
@@ -229,7 +238,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
                 //Translate to Turkish
                 TranslateToTurkish();
-                Speak("Çevriliyor...");
+                Speak("Fotoğraf algılandı.");
             }
         }
     }

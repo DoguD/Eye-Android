@@ -1,10 +1,10 @@
 <resources>
-    <string name="app_name">Custodet</string>
+    <string name="app_name">Eye</string>
 
     <!--API KEYS-->
     <!--Microsoft-->
-    <string name="microsoft_api_key">8813b88ce1574179afa0fd6c9039eab7</string>
+    <string name="microsoft_api_key" translatable="false">8813b88ce1574179afa0fd6c9039eab7</string>
     <!--Google-->
-    <string name="google_api_key">AIzaSyCe-r5ZB9DTarkgbfTGQca74FRAincvEqw</string>
+    <string name="google_api_key" translatable="false">AIzaSyCe-r5ZB9DTarkgbfTGQca74FRAincvEqw</string>
 
 </resources>
