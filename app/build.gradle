@@ -10,6 +10,8 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        multiDexEnabled = true // put here because of an error
     }
     // Added for google cloud translate (Don't know what they do)[
     configurations.all {

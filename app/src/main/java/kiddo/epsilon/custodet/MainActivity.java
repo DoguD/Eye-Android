@@ -244,6 +244,27 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         return super.onKeyDown(keyCode, event); // Default return
     }
 
+    //USE VOLUME UP AND DOWN BUTTONS AS INPUT
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        int action = event.getAction();
+        int keyCode = event.getKeyCode();
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_VOLUME_UP:
+                if (action == KeyEvent.ACTION_DOWN) {
+                    MainMethod(); // Start the main method
+                }
+                return true;
+            case KeyEvent.KEYCODE_VOLUME_DOWN:
+                if (action == KeyEvent.ACTION_DOWN) {
+                    MainMethod(); // Start the main method
+                }
+                return true;
+            default:
+                return super.dispatchKeyEvent(event);
+        }
+    }
+
     // TRANSLATE THE OUTPUT OF API TO TURKISH
     void TranslateToTurkish() {
         final Handler textViewHandler = new Handler();
