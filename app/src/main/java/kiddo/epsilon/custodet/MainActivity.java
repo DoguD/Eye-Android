@@ -6,6 +6,8 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.graphics.RectF;
 import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
 import android.os.AsyncTask;
@@ -144,12 +146,17 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 return;
             }
             Speak("Fotoğraf algılanıyor.");
-            photoBitmap = scaleDownBitmapImage(photoBitmap, 300, 200 ); // Experimental bitmap scaling down
+
+            //Scaling Down bitmap using matrix
+            Matrix transformationMatrix = new Matrix();
+            transformationMatrix.setRectToRect(new RectF(0,0,photoBitmap.getWidth(),photoBitmap.getHeight()),new RectF(0, 0, 300, 200), Matrix.ScaleToFit.CENTER);
+            photoBitmap = Bitmap.createBitmap(photoBitmap,0,0,photoBitmap.getWidth(),photoBitmap.getHeight(),transformationMatrix,true);
+            // photoBitmap = scaleDownBitmapImage(photoBitmap, 300, 200 ); // Experimental bitmap scaling down
             ProcessImage();
         }
     };
 
-    // (For displaying purposes) Bitmap rescale bitmap method
+    // Bitmap rescale method
     private Bitmap scaleDownBitmapImage(Bitmap bitmap, int newWidth, int newHeight) {
         Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
         return resizedBitmap;
