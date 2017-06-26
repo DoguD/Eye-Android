@@ -16,11 +16,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Display;
 import android.view.KeyEvent;
-import android.view.Surface;
-import android.view.SurfaceHolder;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -100,12 +96,11 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
         //!!! Only devices with a camera can download our app
         // Check for camera permission for Android 6.0 and above
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             //ask for authorization
             Speak("Lütfen kamera için izin veriniz");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 50);
-        }
-        else{ //Get camera instance
+        } else { //Get camera instance
             camera = checkDeviceCamera();
         }
 
@@ -114,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
         //CAMERA VIEW (Not for blind)
         //Initialize frame layout
-        cameraPreviewLayoutLeft = (FrameLayout)findViewById(R.id.camera_preview_left);
+        cameraPreviewLayoutLeft = (FrameLayout) findViewById(R.id.camera_preview_left);
         //cameraPreviewLayoutRight = (FrameLayout) findViewById(R.id.camera_preview_right);
         //Initialize surface view
         mImageSurfaceView = new ImageSurfaceView(MainActivity.this, camera);
@@ -125,12 +120,11 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     }
 
     //TAKING PHOTO from https://inducesmile.com/android/android-camera-api-tutorial/
-
-    void takePicture(){
+    void takePicture() {
         camera.takePicture(null, null, pictureCallback);
     }
 
-    private Camera checkDeviceCamera(){
+    private Camera checkDeviceCamera() {
         Camera mCamera = null;
         try {
             mCamera = Camera.open();
@@ -144,18 +138,19 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
             photoBitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-            if(photoBitmap==null){ // If a problem occurs with taking photo
+            if (photoBitmap == null) { // If a problem occurs with taking photo
                 Speak("Fotoğraf çekilemedi... Lütfen uygulamayı yeniden başlatın.");
-                state=0;
+                state = 0;
                 return;
             }
             Speak("Fotoğraf algılanıyor.");
+            photoBitmap = scaleDownBitmapImage(photoBitmap, 300, 200 ); // Experimental bitmap scaling down
             ProcessImage();
         }
     };
 
     // (For displaying purposes) Bitmap rescale bitmap method
-    private Bitmap scaleDownBitmapImage(Bitmap bitmap, int newWidth, int newHeight){
+    private Bitmap scaleDownBitmapImage(Bitmap bitmap, int newWidth, int newHeight) {
         Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
         return resizedBitmap;
     }
@@ -171,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             new DoRequest().execute();
         } catch (Exception e) {
             Speak("Fotoğraf algılanamadı, internet bağlantınızı kontrol edin.");
-            state=0;
+            state = 0;
         }
     }
 
@@ -205,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             } catch (Exception e) {
                 this.e = e; // Store error
                 Speak("Fotoğraf algılanamadı, internet bağlantınızı kontrol edin.");
-                state=0;
+                state = 0;
             }
 
             return null;
@@ -223,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             if (e != null) {
                 Speak("Fotoğraf algılanamadı, internet bağlantınızı kontrol edin.");
                 this.e = null;
-                state=0;
+                state = 0;
             } else {
                 Gson gson = new Gson();
                 AnalysisResult result = gson.fromJson(data, AnalysisResult.class);
@@ -296,7 +291,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                         Log.d("Output", textToSpeechInputText);
                         //Speak of the result
                         Speak(textToSpeechInputText);
-                        state=0; // Turn state to not processing
+                        state = 0; // Turn state to not processing
                     }
                 });
                 return null;
@@ -314,16 +309,15 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
     //MAIN
     public void MainMethod() {
-        if(state == 0) {
+        if (state == 0) {
             takePicture(); // Start with taking photo
             Log.e("Camera:", "CaptureImage method executed");
 
             Speak("Fotoğraf çekiliyor...");
-        }
-        else{
+        } else {
             Speak("Bekleyiniz...");
         }
-        state=1;
+        state = 1;
     }
 
     //Setting the language for text-to-speech (Initialize method)
@@ -333,18 +327,27 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
         //Welcome Message
         Speak(textToSpeechInputText); // Speak welcome message
-        Log.e("Checkpoint","welcome message");
+        Log.e("Checkpoint", "welcome message");
         textToSpeechInputText = "Hata var."; // Put temp variable in textToSpeechINPUTTEXT
     }
 
-    //Release camera when you quit from application (Pause method)
+    //Release camera Method
+    void ReleaseCamera(){
+        if(camera!=null){
+            camera.release();
+            camera=null;
+        }
+    }
+
+    //Execute release camera method in onPause and onDestroy
     @Override
     protected void onPause() {
-        // Release camera to prevent possible problems
-        if (camera != null) {
-            camera.release();
-            camera = null;
-        }
+        ReleaseCamera();
         super.onPause();
+    }
+    @Override
+    protected void onDestroy() {
+        ReleaseCamera();
+        super.onDestroy();
     }
 }
