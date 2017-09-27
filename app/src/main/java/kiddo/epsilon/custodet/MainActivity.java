@@ -256,6 +256,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     }
 
     //USE VOLUME UP AND DOWN BUTTONS AS INPUT
+    /*
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         int action = event.getAction();
@@ -274,7 +275,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             default:
                 return super.dispatchKeyEvent(event);
         }
-    }
+    }*/
 
     // TRANSLATE THE OUTPUT OF API TO TURKISH
     void TranslateToTurkish() {
@@ -321,10 +322,10 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             Log.e("Camera:", "CaptureImage method executed");
 
             Speak("Fotoğraf çekiliyor...");
+            state = 1;
         } else {
             Speak("Bekleyiniz...");
         }
-        state = 1;
     }
 
     //Setting the language for text-to-speech (Initialize method)
