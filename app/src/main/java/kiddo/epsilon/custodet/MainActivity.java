@@ -65,9 +65,6 @@ public class MainActivity extends AppCompatActivity{
     private FrameLayout cameraPreviewLayoutLeft;
     //private FrameLayout cameraPreviewLayoutRight;
 
-    // Control variable to check the initilization of tts
-    boolean isInitialized = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,7 +90,6 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onInit(int status) {
                 Log.d("Initialization", ""+status);
-                if(!isInitialized) {
                     tts.setLanguage(turkishLocale); // Set speaking language to Turkish
                     Log.d("Text-To-Speach", "Initialized");
 
@@ -102,7 +98,6 @@ public class MainActivity extends AppCompatActivity{
                     // Put temp variable in textToSpeechInputText
                     textToSpeechInputText = "Hata var.";
                 }
-            }
         });
 
         //Taking photo (initialization of image view)
@@ -132,20 +127,6 @@ public class MainActivity extends AppCompatActivity{
         cameraPreviewLayoutLeft.addView(mImageSurfaceView);
         //cameraPreviewLayoutRight.addView(mImageSurfaceView);
 
-        // Read welcome message after initialization
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if(!isInitialized){
-                    Log.d("Handler","still inside");
-                    handler.postDelayed(this,100);
-                }
-                else{
-                    Log.d("Handler","out of handler");
-                }
-            }
-        }, 100);
     }
 
     //TAKING PHOTO from https://inducesmile.com/android/android-camera-api-tutorial/
@@ -336,18 +317,6 @@ public class MainActivity extends AppCompatActivity{
 
     // TEXT TO SPEECH
     void Speak(final String inputText) {
-        // Prevent the welcome message from being spoken twice
-        if(inputText == "Merhaba, göze hoşgeldiniz. İstediğiniz yere bakın ve kulaklığınızın butonuna basın. Biz sizin için görelim."){
-           if(isInitialized){
-               return;
-           }
-           else{
-               tts.speak(inputText, TextToSpeech.QUEUE_FLUSH, null);
-               isInitialized=true;
-               Log.d("WELCOME MESSAGE","Read");
-           }
-        }
-        else {
             // If the result text is currently spoken wait until it is finisihed
             if (state == 2) {
                 // Check momentarily if tts is finisihed
@@ -373,7 +342,6 @@ public class MainActivity extends AppCompatActivity{
                 tts.speak(inputText, TextToSpeech.QUEUE_FLUSH, null);
             }
         }
-    }
 
     //MAIN
     public void MainMethod() {
