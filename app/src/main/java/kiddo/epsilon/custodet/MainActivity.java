@@ -37,7 +37,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements TextToSpeech.OnInitListener {
+public class MainActivity extends AppCompatActivity{
 
     //VARIABLES
     //Instance
@@ -65,17 +65,13 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     private FrameLayout cameraPreviewLayoutLeft;
     //private FrameLayout cameraPreviewLayoutRight;
 
-    // Control variable for preventing the welcome message from being spoken twice
-    boolean isWelcomeMessageRead = false;
+    // Control variable to check the initilization of tts
+    boolean isInitialized = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //Setting up instance
-        if (instance == null) {
-            instance = this;
-        }
 
         //Force landscape mode
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -91,10 +87,23 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
         //Google API Set-up
         googleApiKey = getString(R.string.google_api_key);
+
         //Setting up text-to-speech
-        if(tts == null) {
-            tts = new TextToSpeech(this, this); // New text-to-speech
-        }
+        tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                Log.d("Initialization", ""+status);
+                if(!isInitialized) {
+                    tts.setLanguage(turkishLocale); // Set speaking language to Turkish
+                    Log.d("Text-To-Speach", "Initialized");
+
+                    // Welcome Message
+                    Speak("Merhaba, göze hoşgeldiniz. İstediğiniz yere bakın ve kulaklığınızın butonuna basın. Biz sizin için görelim.");
+                    // Put temp variable in textToSpeechInputText
+                    textToSpeechInputText = "Hata var.";
+                }
+            }
+        });
 
         //Taking photo (initialization of image view)
         //imageTakenPhoto = (ImageView) findViewById(R.id.imageTakenPhoto);
@@ -123,6 +132,20 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         cameraPreviewLayoutLeft.addView(mImageSurfaceView);
         //cameraPreviewLayoutRight.addView(mImageSurfaceView);
 
+        // Read welcome message after initialization
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if(!isInitialized){
+                    Log.d("Handler","still inside");
+                    handler.postDelayed(this,100);
+                }
+                else{
+                    Log.d("Handler","out of handler");
+                }
+            }
+        }, 100);
     }
 
     //TAKING PHOTO from https://inducesmile.com/android/android-camera-api-tutorial/
@@ -242,9 +265,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 textToSpeechInputText = tempStringBuilder.toString();
                 Log.d("Output", textToSpeechInputText);
 
-                //Translate to Turkish
+                // Translate to Turkish
                 TranslateToTurkish();
-                Speak("Fotoğraf algılandı.");
+                // Speak("Fotoğraf algılandı.");
             }
         }
     }
@@ -313,29 +336,42 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
     // TEXT TO SPEECH
     void Speak(final String inputText) {
-        // If the result text is currently spoken wait until it is finisihed
-        if(state == 2){
-            // Check momentarily if tts is finisihed
-            final Handler h =new Handler();
-            Runnable r = new Runnable() {
-
-                public void run() {
-                    if (!tts.isSpeaking()) { // The speech ended
-                        tts.speak(inputText, TextToSpeech.QUEUE_FLUSH, null);
-                        state = 0;
-                    }
-                    h.postDelayed(this, 100);
-                }
-            };
-            h.postDelayed(r, 100);
-        }
-        // Stop Previous Speech
-        else if(tts.isSpeaking()) {
-            tts.stop();
-            tts.speak(inputText, TextToSpeech.QUEUE_FLUSH, null);
+        // Prevent the welcome message from being spoken twice
+        if(inputText == "Merhaba, göze hoşgeldiniz. İstediğiniz yere bakın ve kulaklığınızın butonuna basın. Biz sizin için görelim."){
+           if(isInitialized){
+               return;
+           }
+           else{
+               tts.speak(inputText, TextToSpeech.QUEUE_FLUSH, null);
+               isInitialized=true;
+               Log.d("WELCOME MESSAGE","Read");
+           }
         }
         else {
-            tts.speak(inputText, TextToSpeech.QUEUE_FLUSH, null);
+            // If the result text is currently spoken wait until it is finisihed
+            if (state == 2) {
+                // Check momentarily if tts is finisihed
+                final Handler h = new Handler();
+                Runnable r = new Runnable() {
+
+                    public void run() {
+                        if (!tts.isSpeaking()) { // The speech ended
+                            tts.speak(inputText, TextToSpeech.QUEUE_FLUSH, null);
+                            state = 0;
+                            return;
+                        }
+                        h.postDelayed(this, 100);
+                    }
+                };
+                h.postDelayed(r, 100);
+            }
+            // Stop Previous Speech
+            else if (tts.isSpeaking()) {
+                tts.stop();
+                tts.speak(inputText, TextToSpeech.QUEUE_FLUSH, null);
+            } else {
+                tts.speak(inputText, TextToSpeech.QUEUE_FLUSH, null);
+            }
         }
     }
 
@@ -356,21 +392,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         Log.d("STATE = ",""+state);
     }
 
-    //Setting the language for text-to-speech (Initialize method)
-    @Override
-    public void onInit(int status) {
-        tts.setLanguage(turkishLocale); // Set speaking language to Turkish
-
-        // Welcome message
-        if(!isWelcomeMessageRead) {
-            Speak("Merhaba, göze hoşgeldiniz. İstediğiniz yere bakın ve kulaklığınızın butonuna basın. Biz sizin için görelim.");
-            isWelcomeMessageRead = true;
-            Log.e("Checkpoint", "welcome message");
-        }
-
-        textToSpeechInputText = "Hata var."; // Put temp variable in textToSpeechInputText
-    }
-
     //Release camera Method
     void ReleaseCamera(){
         if(camera!=null){
@@ -389,5 +410,17 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     protected void onDestroy() {
         ReleaseCamera();
         super.onDestroy();
+    }
+
+    @Override
+    protected void onStart() {
+
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        ReleaseCamera();
+        super.onStop();
     }
 }
