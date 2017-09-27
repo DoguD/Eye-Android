@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     //Instance
     public static MainActivity instance;
     //General
-    int state; //0: no task || 1:processing
+    int state; //0: no task || 1:processing || 2: result
     //Microsoft Variables
     String microsoftApiKey;
     public VisionServiceClient visionServiceClient;
@@ -64,6 +64,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
     private FrameLayout cameraPreviewLayoutLeft;
     //private FrameLayout cameraPreviewLayoutRight;
+
+    // Control variable for preventing the welcome message from being spoken twice
+    boolean isWelcomeMessageRead = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,8 +92,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         //Google API Set-up
         googleApiKey = getString(R.string.google_api_key);
         //Setting up text-to-speech
-        tts = new TextToSpeech(this, this); // New text-to-speech
-        textToSpeechInputText = "Merhaba, göze hoşgeldiniz. İstediğiniz yere bakın ve kulaklığınızın butonuna basın. Biz sizin için görelim."; // Welcome message
+        if(tts == null) {
+            tts = new TextToSpeech(this, this); // New text-to-speech
+        }
 
         //Taking photo (initialization of image view)
         //imageTakenPhoto = (ImageView) findViewById(R.id.imageTakenPhoto);
@@ -299,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                         Log.d("Output", textToSpeechInputText);
                         //Speak of the result
                         Speak(textToSpeechInputText);
-                        state = 0; // Turn state to not processing
+                        state = 2; // Turn state to speaking the result
                     }
                 });
                 return null;
@@ -308,11 +312,33 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     }
 
     // TEXT TO SPEECH
-    void Speak(String inputText) {
+    void Speak(final String inputText) {
+        // Stop the previous speech if it is not the result
         if (tts.isSpeaking()) {
-            tts.stop();
+            // If the result text is currently spoken
+            if(state == 2){
+                // Check momentarily if tts is finsihed
+                final Handler h =new Handler();
+                Runnable r = new Runnable() {
+
+                    public void run() {
+                        if (!tts.isSpeaking()) { // The speech ended
+                            tts.speak(inputText, TextToSpeech.QUEUE_FLUSH, null);
+                            state = 0;
+                        }
+                        h.postDelayed(this, 100);
+                    }
+                };
+                h.postDelayed(r, 100);
+            }
+            else {
+                tts.stop();
+                tts.speak(inputText, TextToSpeech.QUEUE_FLUSH, null);
+            }
         }
-        tts.speak(inputText, TextToSpeech.QUEUE_FLUSH, null);
+        else {
+            tts.speak(inputText, TextToSpeech.QUEUE_FLUSH, null);
+        }
     }
 
     //MAIN
@@ -323,9 +349,10 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
             Speak("Fotoğraf çekiliyor...");
             state = 1;
-        } else {
+        } else if (state == 1){
             Speak("Bekleyiniz...");
         }
+        Log.d("STATE = ",""+state);
     }
 
     //Setting the language for text-to-speech (Initialize method)
@@ -333,10 +360,14 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     public void onInit(int status) {
         tts.setLanguage(turkishLocale); // Set speaking language to Turkish
 
-        //Welcome Message
-        Speak(textToSpeechInputText); // Speak welcome message
+        // Welcome message
+        if(!isWelcomeMessageRead) {
+            Speak("Merhaba, göze hoşgeldiniz. İstediğiniz yere bakın ve kulaklığınızın butonuna basın. Biz sizin için görelim.");
+            isWelcomeMessageRead = true;
+        }
+        
         Log.e("Checkpoint", "welcome message");
-        textToSpeechInputText = "Hata var."; // Put temp variable in textToSpeechINPUTTEXT
+        textToSpeechInputText = "Hata var."; // Put temp variable in textToSpeechInputText
     }
 
     //Release camera Method
@@ -358,4 +389,5 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         ReleaseCamera();
         super.onDestroy();
     }
+    //protected void onHome
 }
