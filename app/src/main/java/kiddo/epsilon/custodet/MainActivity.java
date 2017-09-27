@@ -85,25 +85,6 @@ public class MainActivity extends AppCompatActivity{
         //Google API Set-up
         googleApiKey = getString(R.string.google_api_key);
 
-        //Setting up text-to-speech
-        tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                Log.d("Initialization", ""+status);
-                    tts.setLanguage(turkishLocale); // Set speaking language to Turkish
-                    Log.d("Text-To-Speach", "Initialized");
-
-                    // Welcome Message
-                    Speak("Merhaba, göze hoşgeldiniz. İstediğiniz yere bakın ve kulaklığınızın butonuna basın. Biz sizin için görelim.");
-                    // Put temp variable in textToSpeechInputText
-                    textToSpeechInputText = "Hata var.";
-                }
-        });
-
-        //Taking photo (initialization of image view)
-        //imageTakenPhoto = (ImageView) findViewById(R.id.imageTakenPhoto);
-        //imageTakenPhoto2 = (ImageView) findViewById(R.id.imageTakenPhoto2);
-
         //!!! Only devices with a camera can download our app
         // Check for camera permission for Android 6.0 and above
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
@@ -120,13 +101,29 @@ public class MainActivity extends AppCompatActivity{
         //CAMERA VIEW (Not for blind)
         //Initialize frame layout
         cameraPreviewLayoutLeft = (FrameLayout) findViewById(R.id.camera_preview_left);
-        //cameraPreviewLayoutRight = (FrameLayout) findViewById(R.id.camera_preview_right);
         //Initialize surface view
         mImageSurfaceView = new ImageSurfaceView(MainActivity.this, camera);
         //Show surface view from frame layout
         cameraPreviewLayoutLeft.addView(mImageSurfaceView);
-        //cameraPreviewLayoutRight.addView(mImageSurfaceView);
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        //Setting up text-to-speech
+        tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                Log.d("Initialization", ""+status);
+                tts.setLanguage(turkishLocale); // Set speaking language to Turkish
+                Log.d("Text-To-Speach", "Initialized");
+
+                // Welcome Message
+                Speak("Merhaba, göze hoşgeldiniz. İstediğiniz yere bakın ve kulaklığınızın butonuna basın. Biz sizin için görelim.");
+                // Put temp variable in textToSpeechInputText
+                textToSpeechInputText = "Hata var.";
+            }
+        });
     }
 
     //TAKING PHOTO from https://inducesmile.com/android/android-camera-api-tutorial/
@@ -378,12 +375,6 @@ public class MainActivity extends AppCompatActivity{
     protected void onDestroy() {
         ReleaseCamera();
         super.onDestroy();
-    }
-
-    @Override
-    protected void onStart() {
-
-        super.onStart();
     }
 
     @Override
