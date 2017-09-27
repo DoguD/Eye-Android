@@ -313,28 +313,26 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
     // TEXT TO SPEECH
     void Speak(final String inputText) {
-        // Stop the previous speech if it is not the result
-        if (tts.isSpeaking()) {
-            // If the result text is currently spoken
-            if(state == 2){
-                // Check momentarily if tts is finsihed
-                final Handler h =new Handler();
-                Runnable r = new Runnable() {
+        // If the result text is currently spoken wait until it is finisihed
+        if(state == 2){
+            // Check momentarily if tts is finisihed
+            final Handler h =new Handler();
+            Runnable r = new Runnable() {
 
-                    public void run() {
-                        if (!tts.isSpeaking()) { // The speech ended
-                            tts.speak(inputText, TextToSpeech.QUEUE_FLUSH, null);
-                            state = 0;
-                        }
-                        h.postDelayed(this, 100);
+                public void run() {
+                    if (!tts.isSpeaking()) { // The speech ended
+                        tts.speak(inputText, TextToSpeech.QUEUE_FLUSH, null);
+                        state = 0;
                     }
-                };
-                h.postDelayed(r, 100);
-            }
-            else {
-                tts.stop();
-                tts.speak(inputText, TextToSpeech.QUEUE_FLUSH, null);
-            }
+                    h.postDelayed(this, 100);
+                }
+            };
+            h.postDelayed(r, 100);
+        }
+        // Stop Previous Speech
+        else if(tts.isSpeaking()) {
+            tts.stop();
+            tts.speak(inputText, TextToSpeech.QUEUE_FLUSH, null);
         }
         else {
             tts.speak(inputText, TextToSpeech.QUEUE_FLUSH, null);
@@ -343,6 +341,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
     //MAIN
     public void MainMethod() {
+        // Turn state to 0 if the resulthas ended
+        Speak("");
+
         if (state == 0) {
             takePicture(); // Start with taking photo
             Log.e("Camera:", "CaptureImage method executed");
@@ -364,9 +365,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         if(!isWelcomeMessageRead) {
             Speak("Merhaba, göze hoşgeldiniz. İstediğiniz yere bakın ve kulaklığınızın butonuna basın. Biz sizin için görelim.");
             isWelcomeMessageRead = true;
+            Log.e("Checkpoint", "welcome message");
         }
-        
-        Log.e("Checkpoint", "welcome message");
+
         textToSpeechInputText = "Hata var."; // Put temp variable in textToSpeechInputText
     }
 
@@ -389,5 +390,4 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         ReleaseCamera();
         super.onDestroy();
     }
-    //protected void onHome
 }
