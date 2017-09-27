@@ -39,7 +39,8 @@
         <activity android:name=".MainActivity"
             android:theme="@style/AppTheme"
             android:resizeableActivity="false"
-            android:screenOrientation="portrait">
+            android:screenOrientation="landscape"
+            android:configChanges="layoutDirection">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
