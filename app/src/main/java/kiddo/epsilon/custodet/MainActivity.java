@@ -69,6 +69,21 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Setting up text-to-speech
+        tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                Log.d("Initialization", ""+status);
+                tts.setLanguage(turkishLocale); // Set speaking language to Turkish
+                Log.d("Text-To-Speach", "Initialized");
+
+                // Welcome Message
+                Speak("Merhaba, göze hoşgeldiniz. İstediğiniz yere bakın ve kulaklığınızın butonuna basın. Biz sizin için görelim.");
+                // Put temp variable in textToSpeechInputText
+                textToSpeechInputText = "Hata var.";
+            }
+        });
+
         //Force landscape mode
         //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
@@ -104,25 +119,6 @@ public class MainActivity extends AppCompatActivity{
         mImageSurfaceView = new ImageSurfaceView(MainActivity.this, camera);
         //Show surface view from frame layout
         cameraPreviewLayoutLeft.addView(mImageSurfaceView);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        //Setting up text-to-speech
-        tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                Log.d("Initialization", ""+status);
-                tts.setLanguage(turkishLocale); // Set speaking language to Turkish
-                Log.d("Text-To-Speach", "Initialized");
-
-                // Welcome Message
-                Speak("Merhaba, göze hoşgeldiniz. İstediğiniz yere bakın ve kulaklığınızın butonuna basın. Biz sizin için görelim.");
-                // Put temp variable in textToSpeechInputText
-                textToSpeechInputText = "Hata var.";
-            }
-        });
     }
 
     //TAKING PHOTO from https://inducesmile.com/android/android-camera-api-tutorial/
