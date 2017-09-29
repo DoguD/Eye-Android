@@ -107,20 +107,21 @@ public class MainActivity extends AppCompatActivity{
             //ask for authorization
             Speak("Lütfen kamera için izin veriniz");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 50);
-        } else { //Get camera instance
+        } else {
+            //Get camera instance
             camera = checkDeviceCamera();
+
+            //CAMERA VIEW (Not for blind)
+            //Initialize frame layout
+            cameraPreviewLayoutLeft = (FrameLayout) findViewById(R.id.camera_preview_left);
+            //Initialize surface view
+            mImageSurfaceView = new ImageSurfaceView(MainActivity.this, camera);
+            //Show surface view from frame layout
+            cameraPreviewLayoutLeft.addView(mImageSurfaceView);
         }
 
         //Set the image of image view to temp photo
         photoBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.fountain_pen); // Temporary bitmap
-
-        //CAMERA VIEW (Not for blind)
-        //Initialize frame layout
-        cameraPreviewLayoutLeft = (FrameLayout) findViewById(R.id.camera_preview_left);
-        //Initialize surface view
-        mImageSurfaceView = new ImageSurfaceView(MainActivity.this, camera);
-        //Show surface view from frame layout
-        cameraPreviewLayoutLeft.addView(mImageSurfaceView);
     }
 
     //TAKING PHOTO from https://inducesmile.com/android/android-camera-api-tutorial/
