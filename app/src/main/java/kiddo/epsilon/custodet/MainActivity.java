@@ -1,6 +1,5 @@
 package kiddo.epsilon.custodet;
 
-
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -19,7 +18,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 
 import com.google.cloud.translate.Translate;
 import com.google.cloud.translate.TranslateOptions;
@@ -50,8 +48,6 @@ public class MainActivity extends AppCompatActivity{
     String googleApiKey;
     //Image Variables
     Bitmap photoBitmap;
-    ImageView imageTakenPhoto;
-    ImageView imageTakenPhoto2;
     //Text-To-Speech Variables
     String textToSpeechInputText;
     TextToSpeech tts;
@@ -62,7 +58,6 @@ public class MainActivity extends AppCompatActivity{
     private Camera camera;
 
     private FrameLayout cameraPreviewLayoutLeft;
-    //private FrameLayout cameraPreviewLayoutRight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,9 +78,6 @@ public class MainActivity extends AppCompatActivity{
                 textToSpeechInputText = "Hata var.";
             }
         });
-
-        //Force landscape mode
-        //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
         //Initialize state variable (no process right now)
         state = 0;
@@ -254,28 +246,6 @@ public class MainActivity extends AppCompatActivity{
         }
         return super.onKeyDown(keyCode, event); // Default return
     }
-
-    //USE VOLUME UP AND DOWN BUTTONS AS INPUT
-    /*
-    @Override
-    public boolean dispatchKeyEvent(KeyEvent event) {
-        int action = event.getAction();
-        int keyCode = event.getKeyCode();
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_VOLUME_UP:
-                if (action == KeyEvent.ACTION_DOWN) {
-                    MainMethod(); // Start the main method
-                }
-                return true;
-            case KeyEvent.KEYCODE_VOLUME_DOWN:
-                if (action == KeyEvent.ACTION_DOWN) {
-                    MainMethod(); // Start the main method
-                }
-                return true;
-            default:
-                return super.dispatchKeyEvent(event);
-        }
-    }*/
 
     // TRANSLATE THE OUTPUT OF API TO TURKISH
     void TranslateToTurkish() {

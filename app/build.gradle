@@ -7,8 +7,8 @@ android {
         applicationId "kiddo.epsilon.custodet"
         minSdkVersion 19 // Normally it was 19 ; made it 21 for Camera2 API
         targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "1.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         multiDexEnabled = true // put here because of an error
@@ -27,8 +27,9 @@ android {
     buildTypes {
         release {
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            proguardFiles.add(file('../../proguard-gvr.txt')) // GVR proguard file
+            proguardFiles getDefaultProguardFile('proguard-android.txt'),
+                    'proguard-rules.pro'
+            //proguardFiles.add(file('../../proguard-gvr.txt')) // GVR proguard file
         }
     }
 
