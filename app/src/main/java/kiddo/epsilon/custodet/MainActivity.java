@@ -324,7 +324,7 @@ public class MainActivity extends AppCompatActivity{
             takePicture(); // Start with taking photo
             Log.e("Camera:", "CaptureImage method executed");
 
-            Speak("Fotoğraf çekiliyor...");
+            // Speak("Fotoğraf çekiliyor...");
             state = 1;
         } else if (state == 1){
             Speak("Bekleyiniz...");
