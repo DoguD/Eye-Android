@@ -17,5 +17,8 @@
 #}
 
 
--keep public class * MainActivity
--keep public class * ImageSurfaceView
+-ignorewarnings
+
+-keep class * {
+    public private *;
+}
