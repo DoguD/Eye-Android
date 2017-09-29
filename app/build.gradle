@@ -7,8 +7,8 @@ android {
         applicationId "kiddo.epsilon.custodet"
         minSdkVersion 19 // Normally it was 19 ; made it 21 for Camera2 API
         targetSdkVersion 25
-        versionCode 3
-        versionName "1.2"
+        versionCode 4
+        versionName "1.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         multiDexEnabled = true // put here because of an error

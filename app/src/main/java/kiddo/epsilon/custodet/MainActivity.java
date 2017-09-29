@@ -17,6 +17,8 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 
 import com.google.cloud.translate.Translate;
@@ -37,8 +39,6 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity{
 
     //VARIABLES
-    //Instance
-    public static MainActivity instance;
     //General
     int state; //0: no task || 1:processing || 2: result
     //Microsoft Variables
@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity{
     private Camera camera;
 
     private FrameLayout cameraPreviewLayoutLeft;
+    private Button buttonTakePhoto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +77,15 @@ public class MainActivity extends AppCompatActivity{
                 Speak("Merhaba, göze hoşgeldiniz. İstediğiniz yere bakın ve kulaklığınızın butonuna basın. Biz sizin için görelim.");
                 // Put temp variable in textToSpeechInputText
                 textToSpeechInputText = "Hata var.";
+            }
+        });
+
+        // Set layout elements
+        buttonTakePhoto = (Button) findViewById(R.id.buttonTakePhoto);
+        buttonTakePhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MainMethod();
             }
         });
 
