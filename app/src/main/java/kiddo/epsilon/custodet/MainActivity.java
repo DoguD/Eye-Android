@@ -260,32 +260,36 @@ public class MainActivity extends AppCompatActivity{
 
     // TRANSLATE THE OUTPUT OF API TO TURKISH
     void TranslateToTurkish() {
-        final Handler textViewHandler = new Handler();
-
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... params) {
-                TranslateOptions options = TranslateOptions.newBuilder()
-                        .setApiKey(googleApiKey)
-                        .build();
-                Translate translate = options.getService();
-                final Translation translation =
-                        translate.translate(textToSpeechInputText,
-                                Translate.TranslateOption.targetLanguage("tr"));
-                textViewHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.d("Translated text:", translation.getTranslatedText().toString());
-                        textToSpeechInputText = translation.getTranslatedText().toString();
-                        Log.d("Output", textToSpeechInputText);
-                        //Speak of the result
-                        Speak(textToSpeechInputText);
-                        state = 2; // Turn state to speaking the result
-                    }
-                });
-                return null;
-            }
-        }.execute();
+        // Check wheter the device language is English
+        if(Locale.getDefault().getDisplayLanguage() == "en"){ // Don't do anything if it is English
+        }
+        else { // Translate to device language (For now just Turkish)
+            final Handler textViewHandler = new Handler();
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... params) {
+                    TranslateOptions options = TranslateOptions.newBuilder()
+                            .setApiKey(googleApiKey)
+                            .build();
+                    Translate translate = options.getService();
+                    final Translation translation =
+                            translate.translate(textToSpeechInputText,
+                                    Translate.TranslateOption.targetLanguage("tr"));
+                    textViewHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.d("Translated text:", translation.getTranslatedText().toString());
+                            textToSpeechInputText = translation.getTranslatedText().toString();
+                            Log.d("Output", textToSpeechInputText);
+                            //Speak of the result
+                            Speak(textToSpeechInputText);
+                            state = 2; // Turn state to speaking the result
+                        }
+                    });
+                    return null;
+                }
+            }.execute();
+        }
     }
 
     // TEXT TO SPEECH
